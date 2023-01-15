@@ -48,6 +48,47 @@ app.get('/api/customers', async (req, res) => {
 	}
 });
 
+app.get('/api/customers/:id', async(req, res) => {
+	console.log({
+		requestParams: req.params,
+		requestQuery: req.query
+	});
+	try{
+		const {id: customerId} = req.params;
+		console.log(customerId);
+		const customer = await Customer.findById(customerId);
+		console.log(customer);
+		if(!customer){
+			res.status(404).json({error: 'User not found'});
+		} else {
+			res.json({customer});
+		}
+	} catch(e){
+		res.status(500).json({error: 'something went wrong'});
+	}
+});
+
+app.put('/api/customers/:id', async(req, res) => {
+	try {
+		const customerId = req.params.id;
+		const result = await Customer.replaceOne({_id: customerId}, req.body);
+		console.log(result);
+		res.json({updatedCount: result.modifiedCount});
+	} catch (e) {
+		res.status(500).json({error: 'something went wrong'});
+	}
+});
+
+app.delete('/api/customers/:id', async(req, res) => {
+	try {
+		const customerId = req.params.id;
+		const result = await Customer.deleteOne({_id: customerId});
+		res.json({deletedCount: result.deletedCount});
+	} catch(e){
+		res.status(500).json({error: "Something went wrong"});
+	}
+});
+
 app.post('/api/customers', async (req, res) => {
 	console.log(req.body);
 	const customer = new Customer(req.body);
